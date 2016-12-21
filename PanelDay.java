@@ -2,11 +2,11 @@ package cashTracker;
 
 import javax.swing.JTextArea;
 
-public class StatsPanel extends JTextArea {
+public class PanelDay extends JTextArea {
 
 	private static final long serialVersionUID = 1L;
 
-	public StatsPanel() {
+	public PanelDay() {
 		setEditable(false);
 		setFocusable(false);
 		setBackground(Application.background);
@@ -16,14 +16,12 @@ public class StatsPanel extends JTextArea {
 		setText("");
 	}
 
-	public void update(DataPoint point, double allowance) {
-		if (point == null)
+	public void update(DataPointList dpl) {
+		if (dpl.selected == null)
 			return;
 
-		String sallowance = Double.toString(Math.round(allowance * 100) / 100.0);
-
-		String text = point.getStr(true) + "\n" + "Daily Allowance: $" + sallowance;
-
+		String text = dpl.selected.getStr(true) + "\nAverage Gain: \n   $" + dpl.getAverageGain() + " per day" + "\n\n";
+		
 		setText(text);
 	}
 }

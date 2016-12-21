@@ -16,44 +16,72 @@ public class Application extends JFrame implements ActionListener {
 	public static final Color background = new Color(230, 250, 250);
 	public static final Color foreground = new Color(80, 100, 100);
 
-	StatsPanel stats;
-	ModPanel mod;
+	PanelDay stats;
+	PanelModify mod;
+
+	PanelMonth lmonth, tmonth;
 
 	Graph graph;
+
+	DataPointFile dpf;
+	DataPointList dpl;
 
 	public Application() {
 		setTitle("CashTracker");
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		// settings stuff
-		TitlePanel title = new TitlePanel(24, "CashTracker");
-
-		stats = new StatsPanel();
-		mod = new ModPanel(this);
-
-		// settings panel
-		JPanel settings = new JPanel();
-		settings.setBackground(background);
-		settings.setLayout(new BorderLayout());
-
-		settings.add(title, BorderLayout.NORTH);
-		settings.add(stats, BorderLayout.CENTER);
-		settings.add(mod, BorderLayout.SOUTH);
-
-		// graph
-		graph = new Graph(stats);
-
-		// overall panel
 		setLayout(new BorderLayout());
+		
+		dpf = new DataPointFile();
+		dpl = new DataPointList();
 
-		add(settings, BorderLayout.WEST);
+		dpl.current = dpf.clipListCurrent();
+		dpl.selected = dpl.current;
+
+		dpl.past = dpf.getList();
+
+		dpf.backup(dpl.current);
+		
+		// left
+		JPanel left = new JPanel(new BorderLayout());
+		left.setBackground(background);
+		
+		PanelTitle dtitle = new PanelTitle(24, "CashTracker");
+		left.add(dtitle, BorderLayout.NORTH);
+		
+		stats = new PanelDay();
+		left.add(stats, BorderLayout.CENTER);
+		
+		mod = new PanelModify(this);
+		left.add(mod, BorderLayout.SOUTH);
+		
+		// right
+		JPanel right = new JPanel(new BorderLayout());
+		right.setBackground(background);
+		
+		PanelTitle antitle = new PanelTitle(20, "Analysis");
+		right.add(antitle, BorderLayout.NORTH);
+		
+		lmonth = new PanelMonth();
+		lmonth.update(dpl, 1);
+		right.add(lmonth, BorderLayout.CENTER);
+
+		tmonth = new PanelMonth();
+		tmonth.update(dpl, 0);
+		right.add(tmonth, BorderLayout.SOUTH);
+		
+		// center
+		graph = new Graph(dpl, stats);	
+		
+		// overall panel
+		add(left, BorderLayout.WEST);
 		add(graph, BorderLayout.CENTER);
+		add(right, BorderLayout.EAST);
 
 		pack();
 		setFocusable(true);
 	}
-
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
@@ -81,10 +109,22 @@ public class Application extends JFrame implements ActionListener {
 			String description = (String) JOptionPane.showInputDialog(this, question, "Enter Description",
 					JOptionPane.PLAIN_MESSAGE, null, null, "Unknown");
 
-			graph.update(mod.get(), description);
-			mod.clear();
+			if (description != null) {
+				graph.repaint();
+
+				dpl.updateCurrent(mod.get(), description);
+
+				dpf.save(dpl.current);
+
+				mod.clear();
+			}
+
 		} else if (e.getSource() == mod.reset) {
-			graph.reset();
+			graph.repaint();
+
+			dpl.resetCurrent();
+			dpf.save(dpl.current);
+
 		}
 	}
 }

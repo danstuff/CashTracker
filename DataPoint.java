@@ -1,13 +1,12 @@
 package cashTracker;
 
-import java.awt.Color;
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 public class DataPoint {
 	public static Calendar minimum_date;
-	
+
 	public static final String regex = Character.toString((char) (181));
 	public static final String newline_rep = Character.toString((char) (182));
 
@@ -17,27 +16,28 @@ public class DataPoint {
 	
 	private String description;
 
-	Color color;
-	int x, y;
-
-	public static void init(){
+	public static void init() {
 		minimum_date = Calendar.getInstance();
 		minimum_date.add(Calendar.DAY_OF_MONTH, -Graph.max_days / 2);
 	}
-	
+
 	public DataPoint(double i_balance, Calendar mdate) {
 		if (mdate != null)
 			date = (Calendar) mdate.clone();
 		else
 			date = Calendar.getInstance();
 		
-		clean();
+		int year = date.get(Calendar.YEAR);
+		int month = date.get(Calendar.MONTH);
+		int day = date.get(Calendar.DAY_OF_MONTH);
+
+		date.set(year, month, day, 0, 0, 0);
 		
-		balance  = i_balance;
+		balance = i_balance;
 
 		description = "";
 
-		update(i_balance, 0, "");
+		update(0, "");
 	}
 
 	public DataPoint(double i_balance, String parse) {
@@ -59,35 +59,24 @@ public class DataPoint {
 
 			this.description = description.replace(newline_rep, "\n");
 
-			update(i_balance, 0, "");
+			update(0, "");
 		}
-	}
-	
-	private void clean(){
-		int year = date.get(Calendar.YEAR);
-		int month = date.get(Calendar.MONTH);
-		int day = date.get(Calendar.DAY_OF_MONTH);
-		
-		date.set(year, month, day, 0, 0, 0);
 	}
 
 	public boolean initialized() {
 		return (date != null && description != null);
 	}
-
-	public boolean isCurrent() {
-		Calendar curr = Calendar.getInstance();
-
-		return (date.get(Calendar.DAY_OF_YEAR) == curr.get(Calendar.DAY_OF_YEAR)
-				&& date.get(Calendar.YEAR) == curr.get(Calendar.YEAR));
+	
+	public boolean equals(Calendar cdate){
+		return (date.get(Calendar.DAY_OF_YEAR) == cdate.get(Calendar.DAY_OF_YEAR)
+				&& date.get(Calendar.YEAR) == cdate.get(Calendar.YEAR));
+	}
+	
+	public int minus(Calendar cdate){
+		return (int) Math.round((date.getTime().getTime() - cdate.getTime().getTime()) / (1000.0 * 60.0 * 60.0 * 24.0));
 	}
 
-	public boolean isBefore(Calendar bdate) {
-		return (date.get(Calendar.DAY_OF_YEAR) < bdate.get(Calendar.DAY_OF_YEAR)
-				|| date.get(Calendar.YEAR) < bdate.get(Calendar.YEAR));
-	}
-
-	public void update(double i_balance, double mod, String additional_desc) {
+	public void update(double mod, String additional_desc) {
 		balance += mod;
 
 		// if this update isn't empty, add it to description
@@ -99,55 +88,27 @@ public class DataPoint {
 			else
 				description += "    " + Double.toString(mod) + " " + additional_desc + "\n";
 		}
-
-		// get number of days since the start date
-		Calendar temp = (Calendar) DataPoint.minimum_date.clone();
-
-		int days_since_minimum = 0;
-
-//		while (temp.get(Calendar.YEAR) < date.get(Calendar.YEAR)) {
-//			temp.add(Calendar.YEAR, 1);
-//			days_since_minimum += temp.getActualMaximum(Calendar.DAY_OF_YEAR);
-//		}
-//		while (temp.get(Calendar.DAY_OF_YEAR) < date.get(Calendar.DAY_OF_YEAR)) {
-//			temp.add(Calendar.DAY_OF_YEAR, 1);
-//			days_since_minimum += 1;
-//		}
-		
-		while (temp.before(date)) {
-			temp.add(Calendar.DAY_OF_YEAR, 1);
-			days_since_minimum++;
-		}
-
-		// set color		
-		if (balance - i_balance > 0) {
-			int x = (int) (balance - i_balance);
-			int y = (int) (255 - Math.pow(Math.E, -0.002*x + Math.log(255)));
-
-			color = new Color(0, y, 255 - y);
-		} else {
-			int x = (int) (i_balance - balance);
-			int y = (int) (255 - Math.pow(Math.E, -0.002*x + Math.log(255)));
-
-			color = new Color(y, 0, 255 - y);
-		}
-
-		// set position
-		x = days_since_minimum * Graph.pixels_per_day;
-		y = Graph.height - ((int) balance * Graph.pixels_per_thousand / 1000);
 	}
 
 	public void reset(double i_balance) {
 		balance = i_balance;
 		description = "";
 
-		update(i_balance, 0, "");
+		update(0, "");
 	}
 
 	public double getBalance() {
 		return balance;
 	}
 
+	public Calendar getDate() {
+		return (Calendar) date.clone();
+	}
+	
+	public String getDescription(){
+		return description;
+	}
+	
 	public String getStr(boolean readable) {
 		String str = "";
 
@@ -161,7 +122,7 @@ public class DataPoint {
 
 			String sbalance = Double.toString(Math.round(balance * 100) / 100.0);
 
-			str = sdate + "\n" + "Balance: $" + sbalance + "\n" + description;
+			str = sdate + "\n\n" + "Balance: $" + sbalance + "\n" + description;
 		} else {
 			// output all of the point's data in a saveable format
 			str += date.get(Calendar.DAY_OF_MONTH) + regex;

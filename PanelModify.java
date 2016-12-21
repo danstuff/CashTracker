@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-public class ModPanel extends JPanel {
+public class PanelModify extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -20,9 +20,7 @@ public class ModPanel extends JPanel {
 
 	public JButton update, reset;
 
-	public JPanel tblank, bblank;
-
-	public ModPanel(Application app) {
+	public PanelModify(Application app) {
 		setFocusable(false);
 
 		text = new JTextArea();
@@ -57,7 +55,12 @@ public class ModPanel extends JPanel {
 
 	public double get() {
 		try {
-			return Double.parseDouble(value.getText().replaceAll("[^\\d.-]", ""));
+			String trim = value.getText().replaceAll("[^\\d.-]", "");
+			
+			if(trim != "")
+				return Double.parseDouble(trim);
+			else
+				return 0;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return 0;

@@ -22,56 +22,38 @@ public class DataPointFile {
 	public void load() {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file));
-
-			double last = 0;
+			
+			double last_bal = 0;
 
 			String line = "";
 
 			while ((line = br.readLine()) != null) {
-				if(line.contains("days_on_graph=")){
+				if (line.contains("days_on_graph=")) {
 					String[] split = line.split("=");
-					
-					if(split.length >= 2){
+
+					if (split.length >= 2) {
 						Graph.max_days = Integer.parseInt(split[1]);
 						Graph.recalculate();
 					}
-				}
-				else if(line.contains("balance_on_graph=")){
+				} else if (line.contains("balance_on_graph=")) {
 					String[] split = line.split("=");
-					
-					if(split.length >= 2){
+
+					if (split.length >= 2) {
 						Graph.max_balance = Integer.parseInt(split[1]);
 						Graph.recalculate();
 					}
 				}
-				else if(line.contains("allowance_generosity=")){
-					String[] split = line.split("=");
-					
-					if(split.length >= 2){
-						DataPointList.allowance_fac = Double.parseDouble(split[1]);
-					}
-				}
-				else if(line.contains("allowance_sustain_days=")){
-					String[] split = line.split("=");
-					
-					if(split.length >= 2){
-						DataPointList.allowance_days = Double.parseDouble(split[1]);
-					}
-				}
 				
-				DataPoint dp = new DataPoint(last, line);
+				DataPoint dp = new DataPoint(last_bal, line);
 
 				if (dp.initialized()) {
-					if (!dp.isCurrent()) {
+					if (!dp.equals(Calendar.getInstance())) {
 						file_contents += dp.getStr(false);
 					}
 
-					if (!dp.isBefore(DataPoint.minimum_date)) {
-						file_list.add(dp);
-						last = dp.getBalance();
-					}
-				}
-				else{
+					file_list.add(dp);
+					last_bal = dp.getBalance();
+				} else {
 					file_contents += line + "\n";
 				}
 			}
@@ -128,16 +110,13 @@ public class DataPointFile {
 		if (file_list.size() <= 0)
 			return new DataPoint(0, (Calendar) null);
 
-		DataPoint last = file_list.get(file_list.size() - 1);
-		DataPoint current;
+		DataPoint last_dp = file_list.get(file_list.size() - 1);
 
-		if (last.isCurrent()) {
-			current = last;
-			file_list.remove(last);
-		} else {
-			current = new DataPoint(last.getBalance(), (Calendar) null);
+		if (last_dp.equals(Calendar.getInstance())) {
+			file_list.remove(last_dp);
+			return last_dp;
 		}
 
-		return current;
+		return new DataPoint(last_dp.getBalance(), (Calendar) null);
 	}
 }
