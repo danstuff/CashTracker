@@ -28,6 +28,7 @@ public class DataPointFile {
 			String line = "";
 
 			while ((line = br.readLine()) != null) {
+				//if the line contains a setting, set it
 				if (line.contains("days_on_graph=")) {
 					String[] split = line.split("=");
 
@@ -44,9 +45,11 @@ public class DataPointFile {
 					}
 				}
 				
+				//try to make a data point out of the line
 				DataPoint dp = new DataPoint(last_bal, line);
 
 				if (dp.initialized()) {
+					//if it's not current day's point, add it to contents
 					if (!dp.equals(Calendar.getInstance())) {
 						file_contents += dp.getStr(false);
 					}
@@ -54,6 +57,7 @@ public class DataPointFile {
 					file_list.add(dp);
 					last_bal = dp.getBalance();
 				} else {
+					//not a valid point, skip adding to list
 					file_contents += line + "\n";
 				}
 			}

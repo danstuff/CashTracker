@@ -35,7 +35,10 @@ public class Graph extends JPanel {
 	public static int pixels_per_thousand;
 
 	private DataPointList dpl;
-	private PanelDay stats;
+	
+	private PanelDay day_stats;
+	private PanelMonth month_stats;
+	private PanelTitle month_title;
 
 	AbstractAction left = new AbstractAction() {
 		private static final long serialVersionUID = 1L;
@@ -64,9 +67,12 @@ public class Graph extends JPanel {
 		DataPoint.init();
 	}
 
-	public Graph(DataPointList dpl, PanelDay stats) {
+	public Graph(DataPointList dpl, PanelDay day_stats, PanelMonth month_stats, PanelTitle month_title) {
 		this.dpl = dpl;
-		this.stats = stats;
+		
+		this.day_stats = day_stats;
+		this.month_stats = month_stats;
+		this.month_title = month_title;
 
 		// set up key bindings
 		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("LEFT"), "left");
@@ -194,7 +200,7 @@ public class Graph extends JPanel {
 
 			if (loop_date.get(Calendar.DAY_OF_MONTH) == 1) {
 				g.setColor(highlight);
-				g.drawString(new SimpleDateFormat("MMMMMMMMMM").format(loop_date.getTime()), getx(day), 12);
+				g.drawString(new SimpleDateFormat("MMMMMMMMMM YYYY").format(loop_date.getTime()), getx(day), 12);
 			}
 
 			loop_date.add(Calendar.DAY_OF_MONTH, 1);
@@ -231,8 +237,10 @@ public class Graph extends JPanel {
 
 		g.drawRect(getx(sel_day) - select_diam / 2, gety(sel_bal) - select_diam / 2, select_diam, select_diam);
 
-		// update stats graph
-		stats.update(dpl);
+		// update stats on side panels
+		day_stats.update(dpl);
+		month_stats.update(dpl);
+		month_title.setName(new SimpleDateFormat("MMMMMMMMMM, YYYY").format(dpl.selected.getDate().getTime()));
 
 		// for compatibility with Linux
 		Toolkit.getDefaultToolkit().sync();

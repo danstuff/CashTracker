@@ -20,8 +20,6 @@ public class PanelDay extends JTextArea {
 		if (dpl.selected == null)
 			return;
 
-		String text = dpl.selected.getStr(true) + "\nAverage Gain: \n   $" + dpl.getAverageGain() + " per day" + "\n\n";
-		
-		setText(text);
+		setText(dpl.selected.getStr(true));
 	}
 }

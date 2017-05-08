@@ -14,4 +14,8 @@ public class PanelTitle extends JTextArea {
 		setFont(getFont().deriveFont(size));
 		setText(name);
 	}
+	
+	public void setName(String name){
+		setText(name);		
+	}
 }

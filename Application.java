@@ -16,10 +16,10 @@ public class Application extends JFrame implements ActionListener {
 	public static final Color background = new Color(230, 250, 250);
 	public static final Color foreground = new Color(80, 100, 100);
 
-	PanelDay stats;
+	PanelDay day;
 	PanelModify mod;
 
-	PanelMonth lmonth, tmonth;
+	PanelMonth month, tmonth;
 
 	Graph graph;
 
@@ -49,8 +49,8 @@ public class Application extends JFrame implements ActionListener {
 		PanelTitle dtitle = new PanelTitle(24, "CashTracker");
 		left.add(dtitle, BorderLayout.NORTH);
 		
-		stats = new PanelDay();
-		left.add(stats, BorderLayout.CENTER);
+		day = new PanelDay();
+		left.add(day, BorderLayout.CENTER);
 		
 		mod = new PanelModify(this);
 		left.add(mod, BorderLayout.SOUTH);
@@ -59,19 +59,15 @@ public class Application extends JFrame implements ActionListener {
 		JPanel right = new JPanel(new BorderLayout());
 		right.setBackground(background);
 		
-		PanelTitle antitle = new PanelTitle(20, "Analysis");
+		PanelTitle antitle = new PanelTitle(20, "This Month");
 		right.add(antitle, BorderLayout.NORTH);
 		
-		lmonth = new PanelMonth();
-		lmonth.update(dpl, 1);
-		right.add(lmonth, BorderLayout.CENTER);
-
-		tmonth = new PanelMonth();
-		tmonth.update(dpl, 0);
-		right.add(tmonth, BorderLayout.SOUTH);
+		month = new PanelMonth();
+		month.update(dpl);
+		right.add(month, BorderLayout.CENTER);
 		
 		// center
-		graph = new Graph(dpl, stats);	
+		graph = new Graph(dpl, day, month, antitle);	
 		
 		// overall panel
 		add(left, BorderLayout.WEST);
