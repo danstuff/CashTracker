@@ -3,11 +3,14 @@ package cashTracker;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class DataPointList {
+public class DataList {
+	public String name;
+	
 	public ArrayList<DataPoint> past;
 	public DataPoint current, selected;
 
-	public DataPointList() {
+	public DataList(String name) {
+		this.name = name;
 		past = new ArrayList<>();
 	}
 

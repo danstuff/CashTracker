@@ -7,13 +7,13 @@ import java.util.GregorianCalendar;
 public class DataPoint {
 	public static Calendar minimum_date;
 
-	public static final String regex = Character.toString((char) (181));
-	public static final String newline_rep = Character.toString((char) (182));
+	public static final String regex = "`";
+	public static final String newline_rep = "~";
 
 	private Calendar date;
 
 	private double balance;
-	
+
 	private String description;
 
 	public static void init() {
@@ -26,13 +26,13 @@ public class DataPoint {
 			date = (Calendar) mdate.clone();
 		else
 			date = Calendar.getInstance();
-		
+
 		int year = date.get(Calendar.YEAR);
 		int month = date.get(Calendar.MONTH);
 		int day = date.get(Calendar.DAY_OF_MONTH);
 
 		date.set(year, month, day, 0, 0, 0);
-		
+
 		balance = i_balance;
 
 		description = "";
@@ -66,13 +66,13 @@ public class DataPoint {
 	public boolean initialized() {
 		return (date != null && description != null);
 	}
-	
-	public boolean equals(Calendar cdate){
+
+	public boolean equals(Calendar cdate) {
 		return (date.get(Calendar.DAY_OF_YEAR) == cdate.get(Calendar.DAY_OF_YEAR)
 				&& date.get(Calendar.YEAR) == cdate.get(Calendar.YEAR));
 	}
-	
-	public int minus(Calendar cdate){
+
+	public int minus(Calendar cdate) {
 		return (int) Math.round((date.getTime().getTime() - cdate.getTime().getTime()) / (1000.0 * 60.0 * 60.0 * 24.0));
 	}
 
@@ -83,10 +83,13 @@ public class DataPoint {
 		if (mod != 0 && !additional_desc.equals("")) {
 			mod = Math.round(mod * 100) / 100.0;
 
+			additional_desc = additional_desc.replaceAll(regex, "");
+			additional_desc = additional_desc.replaceAll(newline_rep, "");
+			
 			if (mod > 0)
-				description += "   +" + Double.toString(mod) + " " + additional_desc + "\n";
+				description += "+" + Double.toString(mod) + " " + additional_desc + "\n";
 			else
-				description += "    " + Double.toString(mod) + " " + additional_desc + "\n";
+				description += Double.toString(mod) + " " + additional_desc + "\n";
 		}
 	}
 
@@ -104,9 +107,55 @@ public class DataPoint {
 	public Calendar getDate() {
 		return (Calendar) date.clone();
 	}
-	
-	public String getDescription(){
+
+	public String getDescription() {
 		return description;
+	}
+
+	public String[] getCategories() {
+		String lines[] = description.split("\n");
+
+		String categories[] = new String[lines.length];
+
+		for (int i = 0; i < lines.length; i++) {
+			String[] spl = lines[i].split("( \\| )");
+
+			if (spl.length >= 2)
+				categories[i] = spl[1];
+			else
+				categories[i] = "None";
+		}
+
+		return categories;
+	}
+
+	public double[] getValues() {
+		String[] lines = description.split("\n");
+
+		double[] values = new double[lines.length];
+
+		for (int i = 0; i < lines.length; i++) {
+			lines[i] = lines[i].replaceAll("[^0-9.]+", " ");
+
+			String[] str_vals = lines[i].trim().split(" ");
+
+			if (str_vals.length > 0 && !str_vals[0].equals(""))
+				values[i] = Double.parseDouble(str_vals[0]);
+		}
+
+		return values;
+	}
+
+	public boolean[] getTDs(){
+		String[] lines = description.split("\n");
+		
+		boolean[] tds = new boolean[lines.length];
+
+		for (int i = 0; i < lines.length; i++) {
+			tds[i] = lines[i].contains("TD");
+		}
+		
+		return tds;
 	}
 	
 	public String getStr(boolean readable) {
@@ -122,7 +171,7 @@ public class DataPoint {
 
 			String sbalance = Double.toString(Math.round(balance * 100) / 100.0);
 
-			str = sdate + "\n\n" + "Balance: $" + sbalance + "\n" + description;
+			str = sdate + "\n\n" + "Balance: $" + sbalance + "\n\n" + description;
 		} else {
 			// output all of the point's data in a saveable format
 			str += date.get(Calendar.DAY_OF_MONTH) + regex;

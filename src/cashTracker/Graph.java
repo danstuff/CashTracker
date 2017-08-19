@@ -6,20 +6,17 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import javax.swing.AbstractAction;
-import javax.swing.JComponent;
+
 import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 
 public class Graph extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
 	public static final int width = 640;
-	public static final int height = 480;
+	public static final int height = 500;
 
 	private static final Color background = new Color(240, 250, 250);
 	private static final Color foreground = new Color(220, 230, 230);
@@ -34,52 +31,17 @@ public class Graph extends JPanel {
 	public static int pixels_per_day;
 	public static int pixels_per_thousand;
 
-	private DataPointList dpl;
-	
-	private PanelDay day_stats;
-	private PanelMonth month_stats;
-	private PanelTitle month_title;
-
-	AbstractAction left = new AbstractAction() {
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			dpl.back();
-			repaint();
-		}
-	};
-
-	AbstractAction right = new AbstractAction() {
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			dpl.forward();
-			repaint();
-		}
-	};
+	private DataList dpl;
 
 	public static void recalculate() {
-		pixels_per_day = (int) Math.round(width / (double)max_days);
+		pixels_per_day = (int) Math.round(width / (double) max_days);
 		pixels_per_thousand = (int) Math.round((double) height / max_balance * 1000);
 
 		DataPoint.init();
 	}
 
-	public Graph(DataPointList dpl, PanelDay day_stats, PanelMonth month_stats, PanelTitle month_title) {
+	public Graph(DataList dpl) {
 		this.dpl = dpl;
-		
-		this.day_stats = day_stats;
-		this.month_stats = month_stats;
-		this.month_title = month_title;
-
-		// set up key bindings
-		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("LEFT"), "left");
-		getActionMap().put("left", left);
-
-		getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("RIGHT"), "right");
-		getActionMap().put("right", right);
 
 		setPreferredSize(new Dimension(width, height));
 		setBackground(background);
@@ -236,11 +198,6 @@ public class Graph extends JPanel {
 		g2d.setStroke(new BasicStroke());
 
 		g.drawRect(getx(sel_day) - select_diam / 2, gety(sel_bal) - select_diam / 2, select_diam, select_diam);
-
-		// update stats on side panels
-		day_stats.update(dpl);
-		month_stats.update(dpl);
-		month_title.setName(new SimpleDateFormat("MMMMMMMMMM, YYYY").format(dpl.selected.getDate().getTime()));
 
 		// for compatibility with Linux
 		Toolkit.getDefaultToolkit().sync();

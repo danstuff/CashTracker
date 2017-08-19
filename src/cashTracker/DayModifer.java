@@ -1,34 +1,39 @@
 package cashTracker;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+
 import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 
-public class PanelModify extends JPanel {
+public class DayModifer extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
 	public static final int maxNumLength = 10;
 
-	private JTextArea text;
+	private JTextPane text;
 
 	public JTextField value;
 
 	public JButton update, reset;
 
-	public PanelModify(Application app) {
+	public DayModifer(Application app) {
 		setFocusable(false);
 
-		text = new JTextArea();
-		text.setBackground(Application.background);
-		text.setForeground(Application.foreground);
+		text = new JTextPane();
 		text.setEditable(false);
 		text.setFocusable(false);
+		text.setBackground(new Color(0,0,0,0));
 		text.setText("Add/Remove Funds");
+		
+		Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 10);
+		text.setFont(font);
 
 		value = new JFormattedTextField();
 		value.setColumns(maxNumLength);
