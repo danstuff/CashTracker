@@ -1,7 +1,6 @@
 package cashTracker;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 
@@ -29,7 +28,7 @@ public class DayModifer extends JPanel {
 		text = new JTextPane();
 		text.setEditable(false);
 		text.setFocusable(false);
-		text.setBackground(new Color(0,0,0,0));
+		text.setOpaque(false);
 		text.setText("Add/Remove Funds");
 		
 		Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 10);
